@@ -63,6 +63,8 @@ const Game = {
   reset: function() {
     this.background = new Background(this.canvas.width, this.canvas.height, this.ctx)
     this.player = new Player(this.canvas.width, this.canvas.height, this.ctx, this.canvas, this.keys)
+    this.generateZombie()
+    //this.zombie = new Zombie(this.canvas.width, this.canvas.height, this.ctx, this.canvas, this.player.pos)
     // this.scoreBoard = ScoreBoard;
     // this.framesCounter = 0;
     // this.obstacles = [];
@@ -71,9 +73,18 @@ const Game = {
   clear: function() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
   },
+  checkPlayer: function() {
+    alert("BAM")
+    alert(this.player.pos.x)
+  },
+  generateZombie: function() {
+    //console.log(this.player.pos)
+    this.zombie = new Zombie(this.canvas.width, this.canvas.height, this.ctx, this.canvas, this.player.pos)
+  },
   drawAll: function() {
   this.background.draw()
   this.player.draw() //Por ahora no tiene animación
+  this.zombie.draw()
   },
 
 }

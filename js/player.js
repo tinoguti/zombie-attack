@@ -14,7 +14,7 @@ class Player {
       x: undefined,
       y: undefined
     }
-    // Rotation
+    // Target and rotation
     this.target = {
       x: undefined,
       y: undefined,
@@ -31,18 +31,20 @@ class Player {
   }
 
   draw() {
-    console.log("Drawing player!")
-    console.log("ROTATION", this.rotation)
-    this.ctx.drawImage(
-      this.img,
-      this.pos.x,
-      this.pos.y,
-      this.w,
-      this.h
-      );  
-    
-    //this.ctx.rotate(this.rotation);
-
+    //console.log("Drawing player!")
+    //console.log("ROTATION", this.rotation)
+    this.ctx.save();
+    this.ctx.translate(this.pos.x, this.pos.y);
+    this.ctx.rotate(this.rotation);
+    this.ctx.drawImage(this.img, -this.w/2, -this.h/2, this.w, this.h)
+    // this.ctx.drawImage(
+    //   this.img,
+    //   this.pos.x,
+    //   this.pos.y,
+    //   this.w,
+    //   this.h
+    //   );
+    this.ctx.restore(); 
   }
 
   setListeners() { // No estoy contento con el resultado, pero por ahora es algo
@@ -61,16 +63,18 @@ class Player {
     }.bind(this)
 
     document.onmousemove = event => {
-      this.mouse.x = event.clientX;
-      this.mouse.y = event.clientY;
+      this.mouse.x = event.pageX //event.clientX;
+      this.mouse.y = event.pageY //event.clientY;
       this.canvas.style.cursor = "crosshair"
       this.target.x = this.mouse.x - this.pos.x;
       this.target.y = this.mouse.y - this.pos.y;
       this.rotation = Math.atan2(this.target.y, this.target.x)
-      console.log(this.mouse.x, this.mouse.y, this.pos.x, this.pos.y, this.rotation)
-      //.url {cursor: url(myBall.cur),auto;}
+      //console.log(this.mouse.x, this.mouse.y, this.pos.x, this.pos.y, this.rotation, Player)
+      //.url {cursor: url(myBall.cur),auto;} wd     
     }
-
+    document.onclick = event => {
+      //alert(this.target.x + " " + this.target.y + " " + this.rotation)
+    }
 
   }
 }
