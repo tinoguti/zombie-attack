@@ -20,13 +20,16 @@ class Player {
       y: undefined,
     }
     this.rotation = undefined
+    // Enemy
+    this.enemyX = undefined
+    this.enemyY = undefined
 
     //Sprite img and size
     this.img = new Image();
     this.img.src = "img/player.gif";
     this.w = 253 * 0.30;
     this.h = 216 * 0.30;
-
+    this.bullets = []
     this.setListeners();
   }
 
@@ -45,6 +48,25 @@ class Player {
     //   this.h
     //   );
     this.ctx.restore(); 
+    ////////////////////////////
+    // this.bullets = this.bullets.filter(bullet => {
+    //   return bullet.x < this.canvas.w;
+    // });
+
+    this.bullets.forEach(function(bullet) {
+      bullet.draw();
+      bullet.move();
+    });
+  }
+
+  shoot() {
+
+    // const bullet = new bullet(
+    //   this.pos,
+    //   this.target,
+    //   this.ctx
+    // );
+    this.bullets.push(new Bullet(this.pos, this.enemyX, this.enemyY, this.ctx))
   }
 
   setListeners() { // No estoy contento con el resultado, pero por ahora es algo
@@ -73,7 +95,9 @@ class Player {
       //.url {cursor: url(myBall.cur),auto;} wd     
     }
     document.onclick = event => {
-      //alert(this.target.x + " " + this.target.y + " " + this.rotation)
+      this.enemyX = event.clientX
+      this.enemyY = event.clientY
+      this.shoot()
     }
 
   }
