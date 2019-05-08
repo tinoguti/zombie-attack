@@ -1,16 +1,17 @@
 class Zombie {
-  constructor(w, h, ctx, canvas, target, random) {
+  constructor(w, h, ctx, canvas, target, random, kills) {
     this.canvasW = w
     this.canvasH = h
     this.ctx = ctx
-    this.canvas = canvas
+    this.canvas = canvas    
     // Posición inicial, será aleatoria alrededor del mapa
     this.random = random
     this.pos = {
       x: this.random.x,
       y: this.random.y
     }
-    this.target = target // Posición del target (Player)
+    // Posición del target (Player)
+    this.target = target 
     this.mouse = {
       x: undefined,
       y: undefined
@@ -26,49 +27,49 @@ class Zombie {
     //Posicion respecto a player
     this.dx = undefined
     this.dy = undefined
-    // this.distance = Math.sqrt((this.dx*this.dx) + (this.dy*this.dy))
-    // this.angle = Math.atan2(this.dy,this.dx) * 180 / Math.PI
-    // this.speedX = undefined
-    // this.speedY = undefined
+    
+    this.speed = 0.3
+    this.status = 1 // 1 = vivo, 0 = muerto
+    this.kills = kills
   }
 
   draw() {
-    //console.log("Drawing Zombie!", this.target.x, this.target.y)
+
     this.ctx.save();
     this.ctx.translate(this.pos.x, this.pos.y);
     this.ctx.rotate(this.rotation);
     this.ctx.drawImage(this.img, -this.w/2, -this.h/2, this.w, this.h)
     this.ctx.restore(); 
     this.move()
+
   }
-  // getAngle() {
-  //   console.log("Getting angle", this.target.x, this.pos.y)
-  //   //this.dx = this.target.x - this.pos.x
-  //   //this.dy = this.target.y - this.pos.y
-  //   //this.distance = Math.sqrt((this.dx*this.dx) + (this.dy*this.dy))
-  //   //this.angle = Math.atan2(this.dy,this.dx) * 180 / Math.PI
-  // }
-  // getSpeed() {
-  //   console.log("Getting speed")
-  //   this.speedX = this.speed * (this.dx/this.distance)
-  //   this.speedY = this.speed * (this.dy/this.distance)
-  // }
 
   move() {
    
     this.dx = this.target.x - this.pos.x;
     this.dy = this.target.y - this.pos.y;
     this.rotation = Math.atan2(this.dy, this.dx)
-    //console.log("HOLA QUE TAL ESTOY EN", this.pos.x, this.pos.y, this.rotation)
-    
-    if (this.target.x > this.pos.x) this.pos.x += 0.3
-    else this.pos.x -= 0.3
 
-    if (this.target.y > this.pos.y) this.pos.y += 0.3
-    else this.pos.y -= 0.3
-    
-    
-    //console.log(this.pos.x, this.pos.y)
+    let radians = Math.atan2(this.dy, this.dx)
+    this.velX = Math.cos(radians) * this.speed;
+    this.velY = Math.sin(radians) * this.speed;
+    this.pos.x += this.velX;
+    this.pos.y += this.velY;
 
+  }
+
+  die() {
+
+    this.speed = 0
+    this.status = 0
+    //this.img.src = cambiar a la imagen de zombie muerto 
+    this.kills += 1
+    //alert(this.kills)
+    // alert(game.kills)
+
+  }
+
+  kill() {
+    console.log("ZOMBIE MATA A PLAYER")
   }
 }

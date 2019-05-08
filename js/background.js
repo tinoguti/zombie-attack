@@ -3,7 +3,7 @@ class Background {
     this.ctx = ctx
     //Bg image + width and height
     this.img = new Image();
-    this.img.src = "/img/background.jpg";
+    this.img.src = "img/background.jpg";
     this.w = w
     this.h = h
     //Bg position

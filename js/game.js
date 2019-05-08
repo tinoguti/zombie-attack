@@ -20,6 +20,7 @@ const Game = {
     y: undefined
   },
   zombies: [],
+  kills: 0,
 
   init: function(canvasId) {
     this.canvas = document.getElementById(canvasId)
@@ -53,8 +54,16 @@ const Game = {
         console.log("Genero zombie", this.framesCounter)
       }
 
+      // const waves = {
+      //   wave1: {
+      //     zombies: 3,
+      //     frames: 1000
+      //   }
+      // }
 
       this.drawAll()
+      this.handleCollisions()
+      this.clearBullets()
     }, 1000 / this.fps);    
   }, 
   stop: function() {
@@ -105,13 +114,76 @@ const Game = {
   },
   generateZombie: function() {
     this.randomOut()
-    this.zombies.push(new Zombie(this.canvas.width, this.canvas.height, this.ctx, this.canvas, this.player.pos, this.random))
+    this.zombies.push(new Zombie(this.canvas.width, this.canvas.height, this.ctx, this.canvas, this.player.pos, this.random, this.kills))
   },
+
+  zombieHit: function() {
+    // colisiones genéricas
+    // (p.x + p.w > o.x && o.x + o.w > p.x && p.y + p.h > o.y && o.y + o.h > p.y )
+    //bullet
+    // esto chequea que el personaje no estén en colisión con cualquier obstáculo
+    return this.obstacles.some(obstacle => {
+      return (
+        this.player.x + this.player.w >= obstacle.x &&
+        this.player.x < obstacle.x + obstacle.w &&
+        this.player.y + (this.player.h - 20) >= obstacle.y
+      );
+    });
+  },
+  
+  clearBullets: function() {
+    // this.bullets = this.player.bullets.filter(function(bullet) {
+    //   return bullet.velY != 0 && bullet.velX != 0
+    // });
+  },
+
   drawAll: function() {
   this.background.draw()
-  this.player.draw() //Por ahora no tiene animación
-  //this.zombie.draw()
+  this.player.draw() 
   this.zombies.forEach(zombie => zombie.draw())
   this.zombies.forEach(zombie => zombie.move())
   },
+  collision: function(a, b) {
+    return a.pos.x < b.pos.x + b.w &&
+            a.pos.x + a.w > b.pos.x &&
+            a.pos.y < b.pos.y + b.h &&
+            a.pos.y + a.h > b.pos.y;
+  },
+  handleCollisions: function() {
+
+    //Cuando el zombie se encuentra con una bala
+    this.zombies.forEach(zombie => {
+      if (
+        this.player.bullets.some(bullet => { 
+          return this.collision(zombie,bullet)
+        })
+      ) {
+        //this.player.bullets.splice(this.player.bullets.indexOf(bullet),1)
+        zombie.die()
+        //this.zombies.splice(this.zombies.indexOf(zombie),1)
+      }
+    })
+    //
+    this.player.bullets.forEach(bullet => {
+      if (
+        this.zombies.some(zombie => { 
+          return this.collision(zombie,bullet)
+        })
+      ) {
+        this.player.bullets.splice(this.player.bullets.indexOf(bullet),1)
+        // bullet.active()
+        //this.zombies.splice(this.zombies.indexOf(zombie),1)
+      }
+    })
+    //Cuando el zombie llega al player, pero llega antes de que haya contacto 
+    this.zombies.forEach(zombie => {
+      if (this.collision(zombie,this.player)) this.player.die()
+    })
+  },
+  data: function() {
+    console.log(this.zombies)
+  }
 }
+
+
+

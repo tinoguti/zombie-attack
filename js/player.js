@@ -5,6 +5,8 @@ class Player {
     this.ctx = ctx
     this.canvas = canvas
     this.keys = keys
+    // Health
+    this.health = 100
     // Posición inicial
     this.pos = {
       x: this.canvasW/2,
@@ -20,9 +22,9 @@ class Player {
       y: undefined,
     }
     this.rotation = undefined
-    // Enemy
-    this.enemyX = undefined
-    this.enemyY = undefined
+    // Posiciones x e y del disparo
+    this.shootX = undefined
+    this.shootY = undefined
 
     //Sprite img and size
     this.img = new Image();
@@ -54,19 +56,14 @@ class Player {
     // });
 
     this.bullets.forEach(function(bullet) {
-      bullet.draw();
-      bullet.move();
+      bullet.draw()
+      bullet.move()
+      //bullet.clearBullets()
     });
   }
 
-  shoot() {
-
-    // const bullet = new bullet(
-    //   this.pos,
-    //   this.target,
-    //   this.ctx
-    // );
-    this.bullets.push(new Bullet(this.pos, this.enemyX, this.enemyY, this.ctx))
+  shoot(tx, ty) {
+    this.bullets.push(new Bullet(this.pos.x, this.pos.y, tx, ty, this.ctx, this.bullets))
   }
 
   setListeners() { // No estoy contento con el resultado, pero por ahora es algo
@@ -91,14 +88,17 @@ class Player {
       this.target.x = this.mouse.x - this.pos.x;
       this.target.y = this.mouse.y - this.pos.y;
       this.rotation = Math.atan2(this.target.y, this.target.x)
-      //console.log(this.mouse.x, this.mouse.y, this.pos.x, this.pos.y, this.rotation, Player)
       //.url {cursor: url(myBall.cur),auto;} wd     
     }
     document.onclick = event => {
-      this.enemyX = event.clientX
-      this.enemyY = event.clientY
-      this.shoot()
+      this.shootX = event.pageX
+      this.shootY = event.pageY
+      this.shoot(event.pageX, event.pageY)
+      //this.shoot()
     }
-
+  }
+  die() {
+    //alert("PLAYER DIES")
+    console.log(this.w, this.h, this.pos.x, this.pos.y)
   }
 }
