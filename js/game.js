@@ -23,6 +23,7 @@ const Game = {
   zombies: [],
   kills: 0,
   freq: undefined,
+  gameOverSong: new Audio(),
 
   init: function(canvasId) {
     this.canvas = document.getElementById(canvasId)
@@ -217,6 +218,8 @@ const Game = {
     document.getElementById("kills").innerHTML = this.kills
     let ratio = this.kills/Math.floor(this.score)
     ratio = ratio.toFixed(2)
+    this.gameOverSong.src = "sound/gameover.mp3"
+    this.gameOverSong.play();
     document.getElementById("ratio").innerHTML = ratio //Math.floor(this.kills/Math.floor(this.score))
   },
   data: function() {
