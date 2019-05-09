@@ -11,7 +11,7 @@ class Bullet {
     this.targetY = ty
     this.speed = 20
     //this.bullets = bullets
-    this.r = 5
+    this.r = 3
     this.vx = 1
     this.vy = 1
     this.w = 10 
@@ -30,29 +30,11 @@ class Bullet {
   }
 
   move() {
-    // console.log(this.pos)
-    // if (this.shootX )
-    // if (this.shootX > this.pos.x) this.pos.x += 2
-    // else this.pos.x -= 2
-    // if (this.shootY > this.pos.y) this.pos.y += 2
-    // else this.pos.y -= 2
-    // console.log(this.pos)
-
-    //console.log(this.velX,this.velY)
-    
-    // let dx = this.shootX - this.pos.x;
-    // let dy = this.shootY - this.pos.y;
-
-    // let dx = this.shootX - this.pos.x 
-    // let dy = this.shootY - this.pos.y
-    
-    // let dx = this.targetX - this.pos.x
-    // let dy = this.targetY - this.pos.y
-    
     let radians = Math.atan2(this.targetY-this.pos.y, this.targetX- this.pos.x)
+    this.prevVelX = this.velX
+    this.prevVelY = this.velY
     this.velX = Math.cos(radians) * this.speed;
     this.velY = Math.sin(radians) * this.speed;
-
     this.pos.x += this.velX;
     this.pos.y += this.velY;
   }

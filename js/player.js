@@ -28,11 +28,14 @@ class Player {
 
     //Sprite img and size
     this.img = new Image();
-    this.img.src = "img/player.gif";
-    this.w = 253 * 0.30;
-    this.h = 216 * 0.30;
+    this.img.src = "/img/player.png"
+    this.w = 213 * 0.30;
+    this.h = 165 * 0.30;
     this.bullets = []
     this.setListeners();
+    //Gun sound
+    this.gunShots = new Audio()
+    this.gunShots.src = "/sound/gun.mp3"
   }
 
   draw() {
@@ -64,6 +67,8 @@ class Player {
 
   shoot(tx, ty) {
     this.bullets.push(new Bullet(this.pos.x, this.pos.y, tx, ty, this.ctx, this.bullets))
+    //this.gunShots.play();
+    
   }
 
   setListeners() { // No estoy contento con el resultado, pero por ahora es algo
@@ -94,11 +99,11 @@ class Player {
       this.shootX = event.pageX
       this.shootY = event.pageY
       this.shoot(event.pageX, event.pageY)
-      //this.shoot()
+
     }
   }
   die() {
-    //alert("PLAYER DIES")
-    console.log(this.w, this.h, this.pos.x, this.pos.y)
+    // alert("YOU ARE DEAD MAN!")
+    console.log("you are dead")
   }
 }

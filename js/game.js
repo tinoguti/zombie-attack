@@ -19,8 +19,10 @@ const Game = {
     x: undefined,
     y: undefined
   },
+  scoreBoard: undefined,
   zombies: [],
   kills: 0,
+  freq: undefined,
 
   init: function(canvasId) {
     this.canvas = document.getElementById(canvasId)
@@ -28,7 +30,7 @@ const Game = {
     this.canvasSize.w = window.innerWidth
     this.canvasSize.h = window.innerHeight
     
-    // ScoreBoard.init(this.ctx); /* ? */
+    ScoreBoard.init(this.ctx);
     this.setDimensions()
     this.setHandlers()
     this.start()
@@ -39,20 +41,15 @@ const Game = {
 
     this.interval = setInterval(() => {
       this.clear()
-      //console.log(this.framesCounter)
-      this.framesCounter++;
+      this.framesCounter++;    
       
-      // controlamos que frameCounter no sea superior a 1000
       if (this.framesCounter > 1000) {
         this.framesCounter = 0;
-        //console.log(this.framesCounter)
-      }
-
-      // controlamos la velocidad de generación de enemigos
-      if (this.framesCounter % 200 === 0) {
+      }      
+      if (this.framesCounter % this.freq === 0) { // Controla la velocidad de generación de enemigos
         this.generateZombie();
-        console.log("Genero zombie", this.framesCounter)
       }
+      this.score += 0.01
 
       // const waves = {
       //   wave1: {
@@ -64,11 +61,11 @@ const Game = {
       this.drawAll()
       this.handleCollisions()
       this.clearBullets()
+      this.levelUp(Math.floor(this.score))
     }, 1000 / this.fps);    
   }, 
   stop: function() {
     clearInterval(this.interval);
-    console.log("Game stopped")
   },
   setDimensions: function () {
     this.canvas.setAttribute('width', this.canvasSize.w)
@@ -82,16 +79,17 @@ const Game = {
   reset: function() {
     this.background = new Background(this.canvas.width, this.canvas.height, this.ctx)    
     this.player = new Player(this.canvas.width, this.canvas.height, this.ctx, this.canvas, this.keys)
-    this.generateZombie() //this.zombie = new Zombie(this.canvas.width, this.canvas.height, this.ctx, this.canvas, this.player.pos)
-    // this.scoreBoard = ScoreBoard;
-    this.framesCounter = 0; //Pone el contador de frames en 0
-    //this.zombies = [];
-    //this.score = 0;
+    this.generateZombie()
+    this.scoreBoard = ScoreBoard
+    this.framesCounter = 0
+    this.zombies = []
+    this.score = 0
+    this.kills = 0
   },
   clear: function() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
   },
-  randomOut: function() {
+  randomOut: function() { //Generación aleatoria de las posiciones de los zombies.
     let random = Math.floor((Math.random() * 4) + 1)
     switch (random) {
       case 1:
@@ -116,32 +114,30 @@ const Game = {
     this.randomOut()
     this.zombies.push(new Zombie(this.canvas.width, this.canvas.height, this.ctx, this.canvas, this.player.pos, this.random, this.kills))
   },
-
-  zombieHit: function() {
-    // colisiones genéricas
-    // (p.x + p.w > o.x && o.x + o.w > p.x && p.y + p.h > o.y && o.y + o.h > p.y )
-    //bullet
-    // esto chequea que el personaje no estén en colisión con cualquier obstáculo
-    return this.obstacles.some(obstacle => {
-      return (
-        this.player.x + this.player.w >= obstacle.x &&
-        this.player.x < obstacle.x + obstacle.w &&
-        this.player.y + (this.player.h - 20) >= obstacle.y
-      );
+  // zombieHit: function() {
+  //   // colisiones genéricas
+  //   // (p.x + p.w > o.x && o.x + o.w > p.x && p.y + p.h > o.y && o.y + o.h > p.y )
+  //   //bullet
+  //   // esto chequea que el personaje no estén en colisión con cualquier obstáculo
+  //   return this.obstacles.some(obstacle => {
+  //     return (
+  //       this.player.x + this.player.w >= obstacle.x &&
+  //       this.player.x < obstacle.x + obstacle.w &&
+  //       this.player.y + (this.player.h - 20) >= obstacle.y
+  //     );
+  //   });
+  // },  
+  clearBullets: function() {
+    this.player.bullets = this.player.bullets.filter(function(bullet) {
+      return Math.round(bullet.prevVelX) !== -Math.round(bullet.velX) && Math.round(bullet.prevVelY) !== -Math.round(bullet.velY)
     });
   },
-  
-  clearBullets: function() {
-    // this.bullets = this.player.bullets.filter(function(bullet) {
-    //   return bullet.velY != 0 && bullet.velX != 0
-    // });
-  },
-
   drawAll: function() {
   this.background.draw()
   this.player.draw() 
   this.zombies.forEach(zombie => zombie.draw())
   this.zombies.forEach(zombie => zombie.move())
+  this.drawScore();
   },
   collision: function(a, b) {
     return a.pos.x < b.pos.x + b.w &&
@@ -150,7 +146,6 @@ const Game = {
             a.pos.y + a.h > b.pos.y;
   },
   handleCollisions: function() {
-
     //Cuando el zombie se encuentra con una bala
     this.zombies.forEach(zombie => {
       if (
@@ -159,11 +154,12 @@ const Game = {
         })
       ) {
         //this.player.bullets.splice(this.player.bullets.indexOf(bullet),1)
-        zombie.die()
-        //this.zombies.splice(this.zombies.indexOf(zombie),1)
+        //zombie.die()
+        this.zombies.splice(this.zombies.indexOf(zombie),1)
+        this.kills++
       }
     })
-    //
+    //Para borrar las balas
     this.player.bullets.forEach(bullet => {
       if (
         this.zombies.some(zombie => { 
@@ -171,14 +167,57 @@ const Game = {
         })
       ) {
         this.player.bullets.splice(this.player.bullets.indexOf(bullet),1)
-        // bullet.active()
         //this.zombies.splice(this.zombies.indexOf(zombie),1)
       }
     })
-    //Cuando el zombie llega al player, pero llega antes de que haya contacto 
+    //Cuando el zombie llega al player
     this.zombies.forEach(zombie => {
-      if (this.collision(zombie,this.player)) this.player.die()
+      if (this.collision(zombie,this.player)) { 
+        this.player.die()
+        this.gameOver()
+      }
     })
+  },
+  drawScore: function() {
+    this.scoreBoard.update(this.score, this.kills);
+  },
+  levelUp: function(score) {
+    switch (score) {
+      case 0:
+        this.freq = 300
+        break;
+      case 10:
+        this.freq = 200
+        break;
+      case 20:
+        this.freq = 100
+        break;
+      case 30:
+        this.freq = 50
+        break;
+      case 40:
+        this.freq = 40
+        break;
+      case 50:
+        this.freq = 30
+        break;
+      case 60:
+        this.freq = 20
+        break;
+      case 70:
+        this.freq = 10
+        break;
+    }
+  },
+  gameOver: function() {
+    this.stop()
+    let node = document.createElement("P");
+    document.getElementById("game-over").style.display = "inline-block"
+    document.getElementById("time").innerHTML = Math.floor(this.score)
+    document.getElementById("kills").innerHTML = this.kills
+    let ratio = this.kills/Math.floor(this.score)
+    ratio = ratio.toFixed(2)
+    document.getElementById("ratio").innerHTML = ratio //Math.floor(this.kills/Math.floor(this.score))
   },
   data: function() {
     console.log(this.zombies)
