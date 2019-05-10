@@ -6,7 +6,7 @@ class Player {
     this.canvas = canvas
     this.keys = keys
     // Health
-    this.health = 100
+    this.health = 200
     // Posición inicial
     this.pos = {
       x: this.canvasW/2,
@@ -39,20 +39,31 @@ class Player {
   }
 
   draw() {
-    this.ctx.save();
-    this.ctx.translate(this.pos.x, this.pos.y);
-    this.ctx.rotate(this.rotation);
+    this.ctx.save()
+    this.ctx.translate(this.pos.x, this.pos.y)
+    this.ctx.rotate(this.rotation)
     this.ctx.drawImage(this.img, -this.w/2, -this.h/2, this.w, this.h)
-    this.ctx.restore(); 
+    this.ctx.restore()
     this.bullets.forEach(function(bullet) {
       bullet.draw()
       bullet.move()
     });
+    // Dibuja la linea de health
+    // this.ctx.lineWidth = 10;  
+    // this.ctx.strokeStyle = "red";
+    // this.ctx.beginPath()
+    // // this.ctx.moveTo(this.pos.x - this.w * 0.5, this.pos.y - this.h * 0.5)
+    // // this.ctx.lineTo(this.health, this.pos.y - this.w * 0.5)
+    // this.ctx.moveTo(200, 200)
+    // this.ctx.lineTo(this.health, 50)
+    // this.ctx.stroke()    
   }
+
   shoot(tx, ty) {
     this.bullets.push(new Bullet(this.pos.x, this.pos.y, tx, ty, this.ctx, this.bullets))
     this.gunShots.play()   
   }
+
   setListeners() { 
     let keys = []
     document.onkeydown = function(event) { // No estoy contento con el resultado, pero por ahora es algo
@@ -75,20 +86,17 @@ class Player {
       // this.canvas.style.cursor = "url(img/cursor/shoot.cur),auto"
       this.target.x = this.mouse.x - this.pos.x;
       this.target.y = this.mouse.y - this.pos.y;
-      this.rotation = Math.atan2(this.target.y, this.target.x)
-           
+      this.rotation = Math.atan2(this.target.y, this.target.x)           
     }
+
     document.onclick = event => {
       this.shootX = event.pageX
       this.shootY = event.pageY
       this.shoot(event.pageX, event.pageY)
-
     }
-    // document.onmouseup = event => {
-    //   this.gunShots.pause();
-    // }
   }
-  die() {
+
+  die() { 
     // alert("YOU ARE DEAD MAN!")
     console.log("you are dead")
   }

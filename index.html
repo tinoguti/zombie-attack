@@ -2,41 +2,49 @@
 <html>
 <head>
   <title>Zombie Attack</title>
-
   <!-- IMPORTANTE EL ORDEN -->
   <!-- Si un objeto necesita otro, incluirlo antes -->
   <script type="text/javascript" src="js/background.js"></script>
   <script type="text/javascript" src="js/bullet.js"></script>
   <script type="text/javascript" src="js/zombie.js"></script>
-
   <script type="text/javascript" src="js/player.js"></script>
   <!-- <script type="text/javascript" src="js/obstacle.js"></script>-->
-  <script type="text/javascript" src="js/sound.js"></script>
   <script type="text/javascript" src="js/scoreboard.js"></script>
   <script type="text/javascript" src="js/game.js"></script>
 
   <script type="text/javascript" src="js/index.js"></script>
-
+  
   <link rel="stylesheet" type="text/css" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css?family=Anton" rel="stylesheet">
+
 </head>
+
 <body>
-  <div id="main-menu">
-    <h1>Zombie Attack</h1>
-    <a id="start" class="btn btn-start">Start Game</a>
-  </div>  
-  <div id="game-over">
-    <div id="game-over-menu">
-      <h1>Game over!</h1>
-      
-      <div id="stats">
-        <h2>Hola que tal aquí van las estadisticas</h2>
-        <ul>
-          <li>Time passed: <span id="time"></span></li>
-          <li>Your kills: <span id="kills"></span></li>
-          <li>Your ratio: <span id="ratio"></span> kills per second</li>
-        </ul>
-      </div>
-      <a id="restart" class="btn btn-restart">Again!</a>
+
+  <div id="main-menu" class="Aligner">
+    <div class="Aligner-item">
+      <img src="img/zombie-attack.svg" alt="Zombie-Attack">
+      <a id="start" class="btn"><span>Start Game</span></a>
+    </div>  
+  </div>
+
+    <div id="game-over" class="Aligner">
+    <div id="game-over-menu" class="Aligner-item">
+        <h1>Game Over</h1>
+        <div id="stats">
+          <h2>Stats</h2>
+              <p>Time passed: <span id="time"></span> seconds</p>
+              <p>Your kills: <span id="kills"></span></p>
+              <p>Your ratio: <span id="ratio"></span> kills per second</p>
+              <!-- <input id="name" type="text">
+              <a id="add">Add</a>
+              <span>...</span>
+              <span>...</span>
+              <span>...</span>
+              <span>...</span>
+              <span>...</span> -->
+        </div>
+        <a id="restart" class="btn btn-restart">Again!</a>
     </div>
   </div>
   <canvas id="canvas"></canvas>

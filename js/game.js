@@ -22,8 +22,11 @@ const Game = {
   scoreBoard: undefined,
   zombies: [],
   kills: 0,
+  ratio: undefined,
   freq: undefined,
   gameOverSong: new Audio(),
+  playingSong: new Audio(),
+  zombieSound: new Audio(),
 
   init: function(canvasId) {
     this.canvas = document.getElementById(canvasId)
@@ -31,11 +34,14 @@ const Game = {
     this.canvasSize.w = window.innerWidth
     this.canvasSize.h = window.innerHeight
     
-    ScoreBoard.init(this.ctx);
+    ScoreBoard.init(this.ctx,this);
     this.setDimensions()
     this.setHandlers()
     this.start()
+    this.playingSong.src = "sound/playing.mp3"
+    this.playingSong.play()
   },
+
   start: function() {
     this.fps = 60
     this.reset()
@@ -65,18 +71,26 @@ const Game = {
       this.levelUp(Math.floor(this.score))
     }, 1000 / this.fps);    
   }, 
+
   stop: function() {
-    clearInterval(this.interval);
+    clearInterval(this.interval)
   },
+
   setDimensions: function () {
     this.canvas.setAttribute('width', this.canvasSize.w)
     this.canvas.setAttribute('height', this.canvasSize.h)
     this.canvasSize.h = window.innerHeight
     this.canvasSize.w = window.innerWidth
   },
+
   setHandlers: function () {
       window.onresize = () => this.setDimensions()
+      this.playingSong.addEventListener('ended', function() {
+      this.currentTime = 0;
+      this.play()
+      }, false)
   },
+
   reset: function() {
     this.background = new Background(this.canvas.width, this.canvas.height, this.ctx)    
     this.player = new Player(this.canvas.width, this.canvas.height, this.ctx, this.canvas, this.keys)
@@ -87,9 +101,11 @@ const Game = {
     this.score = 0
     this.kills = 0
   },
+
   clear: function() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
   },
+
   randomOut: function() { //Generación aleatoria de las posiciones de los zombies.
     let random = Math.floor((Math.random() * 4) + 1)
     switch (random) {
@@ -111,41 +127,34 @@ const Game = {
         break;
       }
   },
+
   generateZombie: function() {
     this.randomOut()
     this.zombies.push(new Zombie(this.canvas.width, this.canvas.height, this.ctx, this.canvas, this.player.pos, this.random, this.kills))
   },
-  // zombieHit: function() {
-  //   // colisiones genéricas
-  //   // (p.x + p.w > o.x && o.x + o.w > p.x && p.y + p.h > o.y && o.y + o.h > p.y )
-  //   //bullet
-  //   // esto chequea que el personaje no estén en colisión con cualquier obstáculo
-  //   return this.obstacles.some(obstacle => {
-  //     return (
-  //       this.player.x + this.player.w >= obstacle.x &&
-  //       this.player.x < obstacle.x + obstacle.w &&
-  //       this.player.y + (this.player.h - 20) >= obstacle.y
-  //     );
-  //   });
-  // },  
+    
   clearBullets: function() {
     this.player.bullets = this.player.bullets.filter(function(bullet) {
       return Math.round(bullet.prevVelX) !== -Math.round(bullet.velX) && Math.round(bullet.prevVelY) !== -Math.round(bullet.velY)
     });
   },
+
   drawAll: function() {
   this.background.draw()
   this.player.draw() 
+  this.scoreBoard.drawLife()
   this.zombies.forEach(zombie => zombie.draw())
   this.zombies.forEach(zombie => zombie.move())
   this.drawScore();
   },
+
   collision: function(a, b) {
     return a.pos.x < b.pos.x + b.w &&
             a.pos.x + a.w > b.pos.x &&
             a.pos.y < b.pos.y + b.h &&
             a.pos.y + a.h > b.pos.y;
   },
+
   handleCollisions: function() {
     //Cuando el zombie se encuentra con una bala
     this.zombies.forEach(zombie => {
@@ -173,16 +182,24 @@ const Game = {
     })
     //Cuando el zombie llega al player
     this.zombies.forEach(zombie => {
-      if (this.collision(zombie,this.player)) { 
-        this.player.die()
-        this.gameOver()
+      if (this.collision(zombie,this.player)) {
+        // Aquí empecé a darle vida al jugador pero empezó a llevarme más tiempo del esperado.
+        // if (this.player.health >= 0) this.player.health -= 0.0005 
+        // if (this.player.health <= 0.95) { }
+        this.playingSong.pause();
+        this.player.health -= 1  
+        if (this.player.health <= 0){
+
+          this.player.die()
+          this.gameOver()
+        }
       }
     })
   },
   drawScore: function() {
     this.scoreBoard.update(this.score, this.kills);
   },
-  levelUp: function(score) {
+  levelUp: function(score) { //Controla la frecuencia de generación de zombies
     switch (score) {
       case 0:
         this.freq = 300
@@ -210,18 +227,41 @@ const Game = {
         break;
     }
   },
+
   gameOver: function() {
     this.stop()
     let node = document.createElement("P");
     document.getElementById("game-over").style.display = "inline-block"
     document.getElementById("time").innerHTML = Math.floor(this.score)
-    document.getElementById("kills").innerHTML = this.kills
-    let ratio = this.kills/Math.floor(this.score)
-    ratio = ratio.toFixed(2)
+    document.getElementById("kills").innerHTML = this.kills 
+    this.ratio = this.kills/Math.floor(this.score)   
+    this.ratio = this.ratio.toFixed(2)
     this.gameOverSong.src = "sound/gameover.mp3"
     this.gameOverSong.play();
-    document.getElementById("ratio").innerHTML = ratio //Math.floor(this.kills/Math.floor(this.score))
+    document.getElementById("ratio").innerHTML = this.ratio
+    //this.loadRandking()
   },
+  // addToRanking: function() {
+  //   let name = document.getElementById("name").value
+  //   if (typeof(Storage) !== "undefined") {
+  //   localStorage.setItem(name, this.ratio);
+  //   console.log(localStorage.getItem(name))
+  //   } else {
+  //     document.getElementById("result").innerHTML = "Sorry, your browser does not support Web Storage...";
+  //   }
+  // },
+  // loadRandking: function() {
+  //   let values = [],
+  //         keys = Object.keys(localStorage),
+  //         i = keys.length;
+  
+  //     while (i--) {
+  //         // values.push(localStorage.getItem(keys[i]));
+  //         document.getElementById("stats").appendChild
+
+  //     }  
+  //     return values;
+  // },  
   data: function() {
     console.log(this.zombies)
   }
