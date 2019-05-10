@@ -56,7 +56,10 @@ const Game = {
       if (this.framesCounter % this.freq === 0) { // Controla la velocidad de generación de enemigos
         this.generateZombie();
       }
-      this.score += 0.01
+      if (this.framesCounter % 60 === 0) { // Controla la velocidad de generación de enemigos
+        this.score += 1
+      }
+      // this.score += 0.01
 
       // const waves = {
       //   wave1: {
@@ -204,25 +207,25 @@ const Game = {
       case 0:
         this.freq = 300
         break;
-      case 10:
+      case 20:
         this.freq = 200
         break;
-      case 20:
+      case 30:
         this.freq = 100
         break;
-      case 30:
+      case 40:
         this.freq = 50
         break;
-      case 40:
+      case 50:
         this.freq = 40
         break;
-      case 50:
+      case 60:
         this.freq = 30
         break;
-      case 60:
+      case 70:
         this.freq = 20
         break;
-      case 70:
+      case 80:
         this.freq = 10
         break;
     }
